@@ -60,8 +60,8 @@ arr_5 = einops.rearrange(arr[0], "c h w -> h (c w)")
 print(arr_5.shape)
 display_array_as_img(arr_5)
 
-### 6th excercise -- split channels, let it (b2 b1) fill rows first
-arr_6 = einops.rearrange(arr, "(b2 b1) c h w -> c (b2 h) (b1 w)", b2=2)
+### 6th excercise -- split channels, let it b2 (internal) next to w fill rows first
+arr_6 = einops.rearrange(arr, "(b1 b2) c h w -> c (b1 h) (b2 w)", b2=3)
 print(arr_6.shape)
 display_array_as_img(arr_6)
 
