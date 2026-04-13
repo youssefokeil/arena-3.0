@@ -192,3 +192,61 @@ expected = t.tensor([[1.0, 0.975, 0.959], [0.975, 1.0, 0.998], [0.959, 0.998, 1.
 assert_all_close(cos_sim_matrix(matrix), expected)
 
 ## D - sample distribution
+def sample_distribution(probs: Tensor, n: int) -> Tensor:
+    """Return n random samples from probs, where probs is a normalized probability distribution.
+
+    probs: shape (k,) where probs[i] is the probability of event i occurring.
+    n: number of random samples
+
+    Return: shape (n,) where out[i] is an integer indicating which event was sampled.
+
+    Use t.rand and t.cumsum to do this without any explicit loops.
+    """
+    probs_cum_sum = t.cumsum(probs, dim=0) ## (1,6)
+    random_vals = t.rand(n,1 ) ## (n,1)
+    random_vals = (random_vals > probs_cum_sum).sum(-1)
+    return random_vals
+
+n = 5_000_000
+probs = t.tensor([0.05, 0.1, 0.1, 0.2, 0.15, 0.4])
+freqs = t.bincount(sample_distribution(probs, n)) / n
+assert_all_close(freqs, probs)
+
+## E - classifier accuracy
+def classifier_accuracy(scores: Tensor, true_classes: Tensor) -> Tensor:
+    """Return the fraction of inputs for which the maximum score corresponds to the true class for that input.
+
+    scores: shape (batch, n_classes). A higher score[b, i] means that the classifier thinks class i is more likely.
+    true_classes: shape (batch, ). true_classes[b] is an integer from [0...n_classes).
+
+    Use t.argmax.
+    """
+    pred_classes = t.argmax(scores,dim=1)
+    num_batch = true_classes.shape[0]
+    return ((pred_classes == true_classes).int().sum())/num_batch
+
+
+scores = t.tensor([[0.75, 0.5, 0.25], [0.1, 0.5, 0.4], [0.1, 0.7, 0.2]])
+true_classes = t.tensor([0, 1, 0])
+expected = 2.0 / 3.0
+if classifier_accuracy(scores, true_classes) == expected:
+    print("Tests passed!")
+
+## F1- price indexing
+def total_price_indexing(prices: Tensor, items: Tensor) -> float:
+    """Given prices for each kind of item and a tensor of items purchased, return the total price.
+
+    prices: shape (k, ). prices[i] is the price of the ith item.
+    items: shape (n, ). A 1D tensor where each value is an item index from [0..k).
+
+    Use integer array indexing. The below document describes this for NumPy but it's the same in PyTorch:
+
+    https://numpy.org/doc/stable/user/basics.indexing.html#integer-array-indexing
+    """
+    raise NotImplementedError()
+
+
+prices = t.tensor([0.5, 1, 1.5, 2, 2.5])
+items = t.tensor([0, 0, 1, 1, 4, 3, 2])
+assert total_price_indexing(prices, items) == 9.0
+print("Tests passed!")
