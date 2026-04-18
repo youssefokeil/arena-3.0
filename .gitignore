@@ -1,2 +1,5 @@
 *.jpg
 *.jpg
+*.pyc
+*.gz
+*-ubyte
